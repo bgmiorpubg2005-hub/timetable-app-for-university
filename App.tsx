@@ -1,15 +1,22 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, Suspense, lazy } from 'react';
 import { AppContext } from './context/AppContext';
 import { Login } from './pages/Login';
 import { Layout } from './components/layout/Layout';
-import { Dashboard } from './pages/Dashboard';
-import { CoreDataManagement } from './pages/admin/CoreDataManagement';
-import { FacultyManagement } from './pages/admin/FacultyManagement';
-import { TimetableAdmin } from './pages/admin/TimetableAdmin';
-import { MySchedule } from './pages/faculty/MySchedule';
-import { AvailabilityRequests } from './pages/faculty/AvailabilityRequests';
-import { ViewTimetable } from './pages/principal/ViewTimetable';
-import { Approvals } from './pages/principal/Approvals';
+
+const Dashboard = lazy(() => import('./pages/Dashboard').then(module => ({ default: module.Dashboard })));
+const CoreDataManagement = lazy(() => import('./pages/admin/CoreDataManagement').then(module => ({ default: module.CoreDataManagement })));
+const FacultyManagement = lazy(() => import('./pages/admin/FacultyManagement').then(module => ({ default: module.FacultyManagement })));
+const TimetableAdmin = lazy(() => import('./pages/admin/TimetableAdmin').then(module => ({ default: module.TimetableAdmin })));
+const MySchedule = lazy(() => import('./pages/faculty/MySchedule').then(module => ({ default: module.MySchedule })));
+const AvailabilityRequests = lazy(() => import('./pages/faculty/AvailabilityRequests').then(module => ({ default: module.AvailabilityRequests })));
+const ViewTimetable = lazy(() => import('./pages/principal/ViewTimetable').then(module => ({ default: module.ViewTimetable })));
+const Approvals = lazy(() => import('./pages/principal/Approvals').then(module => ({ default: module.Approvals })));
+
+const PageLoader: React.FC = () => (
+  <div className="flex justify-center items-center w-full h-full">
+    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500 dark:border-indigo-400"></div>
+  </div>
+);
 
 const App: React.FC = () => {
   const { state } = useContext(AppContext);
@@ -55,7 +62,9 @@ const App: React.FC = () => {
 
   return (
     <Layout>
-      {renderContent()}
+      <Suspense fallback={<PageLoader />}>
+        {renderContent()}
+      </Suspense>
     </Layout>
   );
 };
