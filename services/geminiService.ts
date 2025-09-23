@@ -4,8 +4,6 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AppState, TimetableEntry, Faculty, LeaveRequest } from '../context/types';
 import { DAYS, TIME_SLOTS } from '../context/constants';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
-
 const timetableSchema = {
   type: Type.ARRAY,
   items: {
@@ -55,6 +53,7 @@ export const generateTimetableWithGemini = async (
     generationProfile: 'balanced' | 'speed' | 'accuracy',
     additionalConstraints: string
 ): Promise<TimetableEntry[]> => {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const { classrooms, subjects, studentGroups, faculty, leaveRequests } = appState;
 
     // --- Process Approved Leaves to update Faculty Availability ---
