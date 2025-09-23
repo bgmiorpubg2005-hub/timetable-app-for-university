@@ -4,6 +4,7 @@ import { generateTimetableWithGemini } from '../../services/geminiService';
 import { TIME_SLOTS, DAYS } from '../../context/constants';
 import { TimetableEntry } from '../../context/types';
 import { Modal } from '../../components/common/Modal';
+import { ApiKeyModal } from '../../components/common/ApiKeyModal';
 
 declare const jspdf: any;
 
@@ -20,11 +21,18 @@ export const TimetableAdmin: React.FC = () => {
     
     // State for publish confirmation modal
     const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+    
+    // State for API key info modal
+    const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
 
     const timetableToDisplay = publishedTimetable || draftTimetable;
 
     const handleOpenModal = () => {
-        setIsModalOpen(true);
+        if (!process.env.API_KEY) {
+            setIsApiKeyModalOpen(true);
+        } else {
+            setIsModalOpen(true);
+        }
     };
 
     const handleGenerate = async () => {
@@ -168,6 +176,7 @@ export const TimetableAdmin: React.FC = () => {
                 </button>
             </div>
             {renderGenerationModal()}
+            <ApiKeyModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
             </>
         );
     }
@@ -247,6 +256,7 @@ export const TimetableAdmin: React.FC = () => {
                 </div>
             </div>
             {renderGenerationModal()}
+            <ApiKeyModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
             <Modal isOpen={isConfirmModalOpen} onClose={() => setConfirmModalOpen(false)} title="Confirm Publication">
                 <div className="space-y-4">
                     <p className="text-slate-600 dark:text-slate-300">Are you sure you want to publish this draft?</p>

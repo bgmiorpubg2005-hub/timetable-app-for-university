@@ -53,6 +53,11 @@ export const generateTimetableWithGemini = async (
     generationProfile: 'balanced' | 'speed' | 'accuracy',
     additionalConstraints: string
 ): Promise<TimetableEntry[]> => {
+    if (!process.env.API_KEY) {
+        console.error("Gemini API Key is missing. Please set the API_KEY environment variable.");
+        throw new Error("API Key is not configured. Please check the application setup.");
+    }
+    
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const { classrooms, subjects, studentGroups, faculty, leaveRequests } = appState;
 
