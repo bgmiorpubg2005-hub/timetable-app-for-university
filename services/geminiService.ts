@@ -1,4 +1,5 @@
 
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { AppState, TimetableEntry, Faculty, LeaveRequest } from '../context/types';
 import { DAYS, TIME_SLOTS } from '../context/constants';

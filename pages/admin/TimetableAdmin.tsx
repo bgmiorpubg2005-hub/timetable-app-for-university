@@ -34,7 +34,7 @@ export const TimetableAdmin: React.FC = () => {
             const result = await generateTimetableWithGemini(state, generationProfile, additionalConstraints);
             dispatch({ type: 'SET_DRAFT_TIMETABLE', payload: result });
         } catch (error) {
-            alert((error as Error).message);
+            dispatch({ type: 'SHOW_TOAST', payload: { message: (error as Error).message, type: 'error' } });
             dispatch({ type: 'SET_GENERATING', payload: false });
         }
     };
