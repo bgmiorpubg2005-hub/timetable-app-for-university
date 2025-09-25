@@ -1,6 +1,6 @@
 import React, { useContext, useState, useMemo } from 'react';
 import { AppContext } from '../../context/AppContext';
-import { LeaveRequest, SwapRequest, TimetableEntry, Role } from '../../context/types';
+import { LeaveRequest, Role, SwapRequest, TimetableEntry } from '../../context/types';
 
 export const Approvals: React.FC = () => {
     const { state, dispatch } = useContext(AppContext);

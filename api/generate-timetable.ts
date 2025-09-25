@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { AppState, TimetableEntry, Faculty } from '../context/types';
-import { TIME_SLOTS, DAYS } from '../context/constants';
+import { AppState, Faculty, TimetableEntry } from '../context/types';
+import { DAYS, TIME_SLOTS } from '../context/constants';
 
 // Helper function to get all dates between a start and end date
 const getDatesInRange = (startDate: string, endDate: string): Date[] => {

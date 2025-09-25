@@ -1,7 +1,7 @@
 import React, { useContext, useState, useMemo } from 'react';
 import { AppContext } from '../../context/AppContext';
-import { TIME_SLOTS, DAYS } from '../../context/constants';
-import { Faculty, LeaveRequest, SwapRequest, TimetableEntry, Role } from '../../context/types';
+import { Faculty, LeaveRequest, Role, SwapRequest, TimetableEntry } from '../../context/types';
+import { DAYS, TIME_SLOTS } from '../../context/constants';
 import { Modal } from '../../components/common/Modal';
 
 export const AvailabilityRequests: React.FC = () => {

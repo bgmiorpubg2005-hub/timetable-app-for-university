@@ -1,8 +1,8 @@
 import React, { useContext, useState, useMemo } from 'react';
 import { AppContext } from '../../context/AppContext';
+import { Role, TimetableEntry } from '../../context/types';
+import { DAYS, TIME_SLOTS } from '../../context/constants';
 import { generateTimetableWithGemini } from '../../services/geminiService';
-import { TIME_SLOTS, DAYS } from '../../context/constants';
-import { TimetableEntry, Role } from '../../context/types';
 import { Modal } from '../../components/common/Modal';
 
 declare const jspdf: any;

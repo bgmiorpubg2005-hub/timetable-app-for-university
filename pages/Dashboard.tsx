@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Card } from '../components/common/Card';
 import { Role, View } from '../context/types';
+import { Card } from '../components/common/Card';
 
 export const Dashboard: React.FC = () => {
     const { state, dispatch } = useContext(AppContext);

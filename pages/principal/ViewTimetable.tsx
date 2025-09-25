@@ -1,7 +1,7 @@
 import React, { useContext, useState, useMemo } from 'react';
 import { AppContext } from '../../context/AppContext';
-import { TIME_SLOTS, DAYS } from '../../context/constants';
 import { TimetableEntry } from '../../context/types';
+import { DAYS, TIME_SLOTS } from '../../context/constants';
 
 declare const jspdf: any;
 

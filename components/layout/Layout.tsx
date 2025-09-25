@@ -1,9 +1,9 @@
 import React, { ReactNode, useContext } from 'react';
-import { Header } from './Header';
-import { Sidebar } from './Sidebar';
 import { AppContext } from '../../context/AppContext';
 import { LoadingOverlay } from '../common/LoadingOverlay';
 import { Toast } from '../common/Toast';
+import { Header } from './Header';
+import { Sidebar } from './Sidebar';
 
 
 export const Layout: React.FC<{ children: ReactNode }> = ({ children }) => {
