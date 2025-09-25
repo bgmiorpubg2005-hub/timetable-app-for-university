@@ -4,7 +4,6 @@ import { generateTimetableWithGemini } from '../../services/geminiService';
 import { TIME_SLOTS, DAYS } from '../../context/constants';
 import { TimetableEntry, Role } from '../../context/types';
 import { Modal } from '../../components/common/Modal';
-import { ApiKeyModal } from '../../components/common/ApiKeyModal';
 
 declare const jspdf: any;
 
@@ -16,7 +15,6 @@ export const TimetableAdmin: React.FC = () => {
 
     // State for generation modal
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isApiKeyModalOpen, setApiKeyModalOpen] = useState(false);
     const [generationProfile, setGenerationProfile] = useState<'balanced' | 'speed' | 'accuracy'>('balanced');
     const [additionalConstraints, setAdditionalConstraints] = useState('');
     
@@ -26,12 +24,7 @@ export const TimetableAdmin: React.FC = () => {
     const timetableToDisplay = publishedTimetable || draftTimetable;
 
     const handleOpenModal = () => {
-        // Check for the API key from environment variables.
-        if (!process.env.API_KEY) {
-            setApiKeyModalOpen(true);
-        } else {
-            setIsModalOpen(true);
-        }
+        setIsModalOpen(true);
     };
 
     const handleGenerate = async () => {
@@ -190,7 +183,6 @@ export const TimetableAdmin: React.FC = () => {
                 </button>
             </div>
             {renderGenerationModal()}
-            <ApiKeyModal isOpen={isApiKeyModalOpen} onClose={() => setApiKeyModalOpen(false)} />
             </>
         );
     }
@@ -270,7 +262,6 @@ export const TimetableAdmin: React.FC = () => {
                 </div>
             </div>
             {renderGenerationModal()}
-            <ApiKeyModal isOpen={isApiKeyModalOpen} onClose={() => setApiKeyModalOpen(false)} />
             <Modal isOpen={isConfirmModalOpen} onClose={() => setConfirmModalOpen(false)} title="Confirm Publication">
                 <div className="space-y-4">
                     <p className="text-slate-600 dark:text-slate-300">Are you sure you want to publish this draft?</p>
