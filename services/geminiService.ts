@@ -1,31 +1,32 @@
 import { AppState, TimetableEntry } from '../context/types';
 
 /**
- * Generates a timetable by sending data to a secure backend API endpoint,
- * which then communicates with the Gemini API.
- * @param appState - The current state of the application.
- * @param generationProfile - The desired generation profile ('speed', 'balanced', 'accuracy').
- * @param additionalConstraints - Any user-provided constraints.
- * @returns A promise that resolves to an array of timetable entries.
+ * Generates a timetable by calling the secure serverless API endpoint.
+ * This function sends the necessary data to the backend, which then communicates
+ * with the Gemini API. This approach keeps the API key secure on the server.
+ *
+ * @param state - The current application state.
+ * @param generationProfile - The selected profile for generation ('balanced', 'speed', 'accuracy').
+ * @param additionalConstraints - Any user-provided additional constraints.
+ * @returns A promise that resolves to the generated timetable array.
  */
 export const generateTimetableWithGemini = async (
-    appState: AppState,
+    state: AppState,
     generationProfile: 'balanced' | 'speed' | 'accuracy',
     additionalConstraints: string
 ): Promise<TimetableEntry[]> => {
-    // Extract only the necessary data to send to the backend.
-    // This avoids sending the entire UI state over the network.
-    const { classrooms, subjects, studentGroups, faculty, leaveRequests } = appState;
-    
+    // We only need to send the data required for generation, not the entire state.
+    const { classrooms, subjects, studentGroups, faculty, leaveRequests } = state;
+
     try {
-        // The endpoint '/api/generate-timetable' is a convention for serverless functions
-        // on platforms like Vercel or Netlify.
+        // The fetch call points to the serverless function located in `api/generate-timetable.ts`
         const response = await fetch('/api/generate-timetable', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                // Pass all necessary data in the request body
                 classrooms,
                 subjects,
                 studentGroups,
@@ -36,24 +37,22 @@ export const generateTimetableWithGemini = async (
             }),
         });
 
+        const responseData = await response.json();
+
         if (!response.ok) {
-            const errorData = await response.json();
-            // Propagate the specific error message from the backend.
-            throw new Error(errorData.error || `API error: ${response.statusText}`);
+            // If the server returned an error, throw it to be caught by the calling component
+            throw new Error(responseData.message || `API Error: ${response.statusText}`);
         }
 
-        const data = await response.json();
-        
-        // The backend is expected to return the data in a { timetable: [...] } structure.
-        if (!data.timetable) {
-            throw new Error("Invalid response format from the server.");
-        }
-        
-        return data.timetable as TimetableEntry[];
+        // The serverless function returns the timetable in a 'timetable' property
+        return responseData.timetable;
 
     } catch (error) {
         console.error("Error calling timetable generation API:", error);
-        // Rethrow the error so the UI layer can catch it and display a message.
-        throw new Error((error as Error).message || "An unknown error occurred while communicating with the server.");
+        // Re-throw the error so the UI can display an appropriate message
+        if (error instanceof Error) {
+            throw new Error(`Failed to generate timetable. ${error.message}`);
+        }
+        throw new Error("An unknown error occurred while generating the timetable.");
     }
 };

@@ -2,9 +2,8 @@ import React, { useContext, useState, useMemo } from 'react';
 import { AppContext } from '../../context/AppContext';
 import { generateTimetableWithGemini } from '../../services/geminiService';
 import { TIME_SLOTS, DAYS } from '../../context/constants';
-import { TimetableEntry } from '../../context/types';
+import { TimetableEntry, Role } from '../../context/types';
 import { Modal } from '../../components/common/Modal';
-import { ApiKeyModal } from '../../components/common/ApiKeyModal';
 
 declare const jspdf: any;
 
@@ -21,24 +20,20 @@ export const TimetableAdmin: React.FC = () => {
     
     // State for publish confirmation modal
     const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
-    
-    // State for API key info modal
-    const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
 
     const timetableToDisplay = publishedTimetable || draftTimetable;
 
     const handleOpenModal = () => {
-        if (!process.env.API_KEY) {
-            setIsApiKeyModalOpen(true);
-        } else {
-            setIsModalOpen(true);
-        }
+        // No longer need to check for API key on the client.
+        // Directly open the generation settings modal.
+        setIsModalOpen(true);
     };
 
     const handleGenerate = async () => {
         setIsModalOpen(false);
         dispatch({ type: 'SET_GENERATING', payload: true });
         try {
+            // The service now calls our secure serverless function
             const result = await generateTimetableWithGemini(state, generationProfile, additionalConstraints);
             dispatch({ type: 'SET_DRAFT_TIMETABLE', payload: result });
         } catch (error) {
@@ -50,6 +45,20 @@ export const TimetableAdmin: React.FC = () => {
     const handleConfirmPublish = () => {
         dispatch({ type: 'PUBLISH_TIMETABLE' });
         dispatch({ type: 'SHOW_TOAST', payload: { message: 'Timetable published successfully!', type: 'success' } });
+
+        // Notify all non-admin users
+        state.users.forEach(user => {
+            if (user.role !== Role.ADMIN) {
+                dispatch({
+                    type: 'ADD_NOTIFICATION',
+                    payload: {
+                        userId: user.id,
+                        message: 'A new timetable has been published by the administrator.'
+                    }
+                });
+            }
+        });
+
         setConfirmModalOpen(false);
     };
     
@@ -176,7 +185,6 @@ export const TimetableAdmin: React.FC = () => {
                 </button>
             </div>
             {renderGenerationModal()}
-            <ApiKeyModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
             </>
         );
     }
@@ -256,7 +264,6 @@ export const TimetableAdmin: React.FC = () => {
                 </div>
             </div>
             {renderGenerationModal()}
-            <ApiKeyModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
             <Modal isOpen={isConfirmModalOpen} onClose={() => setConfirmModalOpen(false)} title="Confirm Publication">
                 <div className="space-y-4">
                     <p className="text-slate-600 dark:text-slate-300">Are you sure you want to publish this draft?</p>

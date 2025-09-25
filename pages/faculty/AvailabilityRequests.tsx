@@ -1,7 +1,7 @@
 import React, { useContext, useState, useMemo } from 'react';
 import { AppContext } from '../../context/AppContext';
 import { TIME_SLOTS, DAYS } from '../../context/constants';
-import { Faculty, LeaveRequest, SwapRequest, TimetableEntry } from '../../context/types';
+import { Faculty, LeaveRequest, SwapRequest, TimetableEntry, Role } from '../../context/types';
 import { Modal } from '../../components/common/Modal';
 
 export const AvailabilityRequests: React.FC = () => {
@@ -68,6 +68,19 @@ export const AvailabilityRequests: React.FC = () => {
         };
         dispatch({ type: 'ADD_REQUEST', payload: { requestType: 'leaveRequests', data: newRequest } });
         dispatch({ type: 'SHOW_TOAST', payload: { message: 'Leave request submitted!', type: 'success' } });
+        
+        // Notify all Principals
+        const principals = state.users.filter(u => u.role === Role.PRINCIPAL);
+        principals.forEach(principal => {
+            dispatch({
+                type: 'ADD_NOTIFICATION',
+                payload: {
+                    userId: principal.id,
+                    message: `A new leave request from ${currentUser!.name} is pending your approval.`
+                }
+            });
+        });
+        
         setLeaveModalOpen(false);
     };
 
@@ -102,6 +115,18 @@ export const AvailabilityRequests: React.FC = () => {
                 userId: theirFacultyId, 
                 message: `${currentUser.name} has requested to swap a class with you.` 
             } 
+        });
+
+        // Notify all Admins
+        const admins = state.users.filter(u => u.role === Role.ADMIN);
+        admins.forEach(admin => {
+            dispatch({
+                type: 'ADD_NOTIFICATION',
+                payload: {
+                    userId: admin.id,
+                    message: `A new class swap request from ${currentUser.name} is pending your review.`
+                }
+            });
         });
 
         setSwapModalOpen(false);
