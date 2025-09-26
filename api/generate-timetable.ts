@@ -3,8 +3,72 @@
 // with the secure API key from environment variables, and returns the result.
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { AppState, Faculty, TimetableEntry } from '../context/types';
-import { DAYS, TIME_SLOTS } from '../context/constants';
+
+// --- START: Duplicated types and constants for self-containment ---
+// This prevents potential module resolution errors in serverless environments.
+
+const TIME_SLOTS = ['09:00 - 10:00', '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '14:00 - 15:00', '15:00 - 16:00'];
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+interface Classroom {
+  id: string;
+  name: string;
+  capacity: number;
+  type: 'Lab' | 'Smart Class' | 'Lecture Hall';
+  location: string;
+}
+
+interface Subject {
+  id: string;
+  name: string;
+  code: string;
+  classesPerWeek: number;
+  labRequired: boolean;
+}
+
+interface StudentGroup {
+  id: string;
+  name: string;
+  strength: number;
+  department: string;
+  semester: number;
+}
+
+interface Faculty {
+  id: string;
+  name: string;
+  assignments: { subjectId: string; groupId: string }[];
+  availability: { [day: string]: string[] };
+}
+
+interface TimetableEntry {
+  day: string;
+  time: string;
+  groupId: string;
+  subjectId: string;
+  facultyId: string;
+  roomId: string;
+}
+
+interface LeaveRequest {
+  status: 'Pending' | 'Approved' | 'Rejected';
+  facultyId: string;
+  startDate: string;
+  endDate: string;
+  leaveType: 'full-day' | 'multi-day' | 'half-day';
+  halfDaySession?: 'first-half' | 'second-half';
+}
+
+interface AppState {
+  classrooms: Classroom[];
+  subjects: Subject[];
+  studentGroups: StudentGroup[];
+  faculty: Faculty[];
+  leaveRequests: LeaveRequest[];
+}
+
+// --- END: Duplicated types and constants ---
+
 
 // Helper function to get all dates between a start and end date
 const getDatesInRange = (startDate: string, endDate: string): Date[] => {
@@ -159,9 +223,17 @@ export default async function handler(req: Request): Promise<Response> {
         });
 
         const jsonText = response.text.trim();
-        const generatedData = JSON.parse(jsonText);
+        let generatedData;
+
+        try {
+            generatedData = JSON.parse(jsonText);
+        } catch (parseError) {
+            console.error("Gemini response could not be parsed as JSON. Raw response text:", jsonText);
+            throw new Error("The AI model returned an invalid data format. Please try again.");
+        }
 
         if (!Array.isArray(generatedData)) {
+            console.error("Gemini response was not in the expected array format. Response:", generatedData);
             throw new Error("AI response was not in the expected array format.");
         }
 
